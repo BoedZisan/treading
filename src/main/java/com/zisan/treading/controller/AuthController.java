@@ -8,6 +8,7 @@ import com.zisan.treading.response.AuthResponse;
 import com.zisan.treading.service.CustomeUserDetailsService;
 import com.zisan.treading.service.EmailService;
 import com.zisan.treading.service.TwoFactorOtpService;
+import com.zisan.treading.service.WatchlistService;
 import com.zisan.treading.utils.OtpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,9 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private WatchlistService watchlistService;
+
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> register(@RequestBody User user) throws Exception {
 
@@ -52,6 +56,8 @@ public class AuthController {
         newUser.setFullName(user.getFullName());
 
         User savedUser = userRepository.save(newUser);
+
+        watchlistService.createWatchlist(savedUser);
 
         Authentication auth=new UsernamePasswordAuthenticationToken(
                 user.getEmail(),

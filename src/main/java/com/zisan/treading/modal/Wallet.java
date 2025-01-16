@@ -13,9 +13,9 @@ public class Wallet {
     @OneToOne
     private User user;
 
-    private BigDecimal balance;
+    private BigDecimal balance = BigDecimal.ZERO;
 
-    // Getter and Setter for 'id'
+    // Getter and Setter for id
     public Long getId() {
         return id;
     }
@@ -24,7 +24,7 @@ public class Wallet {
         this.id = id;
     }
 
-    // Getter and Setter for 'user'
+    // Getter and Setter for user
     public User getUser() {
         return user;
     }
@@ -33,7 +33,7 @@ public class Wallet {
         this.user = user;
     }
 
-    // Getter and Setter for 'balance'
+    // Getter and Setter for balance
     public BigDecimal getBalance() {
         return balance;
     }

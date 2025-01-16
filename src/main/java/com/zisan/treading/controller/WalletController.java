@@ -1,11 +1,9 @@
 package com.zisan.treading.controller;
 
 
-import com.zisan.treading.modal.Order;
-import com.zisan.treading.modal.User;
-import com.zisan.treading.modal.Wallet;
-import com.zisan.treading.modal.WalletTransaction;
+import com.zisan.treading.modal.*;
 import com.zisan.treading.service.OrderService;
+import com.zisan.treading.service.PaymentService;
 import com.zisan.treading.service.UserService;
 import com.zisan.treading.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
-@RequestMapping("/api/wallet")
 public class WalletController {
 
     @Autowired
@@ -25,6 +24,9 @@ public class WalletController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private PaymentService paymentService;
 
     @GetMapping("/api/wallet")
     public ResponseEntity<Wallet> getUserWallet(@RequestHeader("Authorization") String jwt) throws Exception {
@@ -60,6 +62,30 @@ public class WalletController {
         Wallet wallet = walletService.payOrderPayment(order, user);
 
 
+
+        return new ResponseEntity<>(wallet, HttpStatus.ACCEPTED);
+    }
+
+    @PutMapping("/api/wallet/deposit")
+    public ResponseEntity<Wallet> addBalanceToWallet(
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam(name = "orderId") Long orderId,
+            @RequestParam(name ="payment_id") String paymentId
+
+
+    ) throws Exception {
+        User user = userService.findUserProfileByJwt(jwt);
+        Wallet wallet = walletService.getUserWallet(user);
+        PaymentOrder order = paymentService.getPaymentOrderById(orderId);
+        Boolean status = paymentService.ProccedPaymentOrder(order, paymentId);
+
+        if(wallet.getBalance()==null) {
+            wallet.setBalance(BigDecimal.valueOf(0));
+        }
+
+        if(status) {
+            wallet=walletService.addBalance(wallet,order.getAmount());
+        }
 
         return new ResponseEntity<>(wallet, HttpStatus.ACCEPTED);
     }
